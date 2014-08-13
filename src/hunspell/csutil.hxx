@@ -52,6 +52,9 @@
 #define FORBIDDENWORD  65510
 #define ONLYUPCASEFLAG 65511
 
+// joker used in infix
+#define INFIX_JOKER '.'
+
 // fopen or optional _wfopen to fix long pathname problem of WIN32
 LIBHUNSPELL_DLL_EXPORTED FILE * myfopen(const char * path, const char * mode);
 
@@ -218,6 +221,13 @@ LIBHUNSPELL_DLL_EXPORTED inline char* HENTRY_FIND(struct hentry *h, const char *
     return (HENTRY_DATA(h) ? strstr(HENTRY_DATA(h), p) : NULL);
 }
 
-#define w_char_eq(a,b) (((a).l == (b).l) && ((a).h == (b).h))
 
+//swap the infixes jokers in the string  for INFIX
+LIBHUNSPELL_DLL_EXPORTED char*  swap_infix_subset(const char* context,const char *word,int len);
+//swap the infixes jokers in the string  for INFIX UTF8
+LIBHUNSPELL_DLL_EXPORTED char*  swap_infix_subset_utf8(const char* context,const char *word,int len);
+//swap the reversed infixes jokers in the string  for INFIX
+LIBHUNSPELL_DLL_EXPORTED char*  swap_rev_infix_subset(const char* context,const char *word,int len);
+//swap the reversed infixes jokers in the string  for INFIX UTF8
+LIBHUNSPELL_DLL_EXPORTED char*  swap_rev_infix_subset_utf8(const char* context,const char *word,int len);
 #endif

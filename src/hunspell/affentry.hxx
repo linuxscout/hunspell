@@ -62,6 +62,7 @@ public:
   
   inline char * nextchar(char * p);
   inline int    test_condition(const char * st);
+  inline void    swap_infixes( char * word,int &len);
 };
 
 
@@ -136,7 +137,7 @@ public:
 
   inline char * nextchar(char * p);
   inline int    test_condition(const char * st, const char * begin);
-
+  inline void    swap_infixes( char * word,int &len);
 };
 
 #endif

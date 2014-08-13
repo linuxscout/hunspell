@@ -115,7 +115,22 @@ opentaal_cpdpat2.test \
 2999225.test \
 onlyincompound2.test \
 forceucase.test \
-warn.test
+warn.test \
+infixes01.test \
+infixes02.test \
+infixes03.test \
+infixes04.test \
+infixes05.test \
+infixes06.test \
+infixes07.test \
+infixes08.test \
+infixes09.test \
+infixes10.test \
+infixes11.test \
+infixes12.test \
+infixes13.test \
+infixes14.test \
+infixes15.test 
 
 # infixes.test
 

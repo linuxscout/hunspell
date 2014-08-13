@@ -1097,11 +1097,34 @@ int AffixMgr::encodeit(affentry &entry, char * cs)
 // return 1 if s1 is a leading subset of s2 (dots are for infixes)
 inline int AffixMgr::isSubset(const char * s1, const char * s2)
  {
-    while (((*s1 == *s2) || (*s1 == '.')) && (*s1 != '\0')) {
-        s1++;
-        s2++;
-    }
-    return (*s1 == '\0');
+          while (((*s1 == *s2) || (*s1 == '.')) && (*s1 != '\0')) {
+            s1++;
+            s2++;
+          }
+        return (*s1 == '\0');   
+//~
+  //~
+    //~if(!utf8)
+    //~{
+        //~while (((*s1 == *s2) || (*s1 == '.')) && (*s1 != '\0')) {
+            //~s1++;
+            //~s2++;
+          //~}
+        //~return (*s1 == '\0');
+    //~}
+    //~else
+    //~{
+    //~w_char s1_u16[MAXWORDUTF8LEN];
+    //~w_char s2_u16[MAXWORDUTF8LEN];
+    //~int s1_u16len=u8_u16(s1_u16, MAXWORDUTF8LEN, s1);
+    //~int s2_u16len=u8_u16(s2_u16, MAXWORDUTF8LEN, s2);
+    //~int i=0;
+    //~while ((w_char_eq(s1_u16[i],s2_u16[i]) || (w_char_is_point(s1_u16[i]))) && (i<s1_u16len)) {
+        //~i++;
+        //~}
+        //~return (i==s1_u16len);
+//~
+    //~}
  }
 
 
@@ -1135,13 +1158,79 @@ struct hentry * AffixMgr::prefix_check(const char * word, int len, char in_compo
              }
        pe = pe->getNext();
     }
-  
-    // now handle the general case
-    unsigned char sp = *((const unsigned char *)word);
-    PfxEntry * pptr = pStart[sp];
+
+// Handle infixes cases : prefixes which starts with a dot
+    PfxEntry * pptr = (PfxEntry *)pStart['.'];
 
     while (pptr) {
         if (isSubset(pptr->getKey(),word)) {
+	if (strstr(pptr->getKey(),"."))
+	{
+	if(!utf8)
+	{
+		char * s=swap_infix_subset(pptr->getKey(),word,len);
+		word=s;
+		len=strlen(word);
+	}
+	else
+	{
+			char * s=swap_infix_subset_utf8 (pptr->getKey(),word,len);
+	    	//printf("+13swaped word %s s:%s\n",word,s);
+//	    	printf("+13swaped word%s\n",s);
+		word=s;
+		len=strlen(word);
+}
+	}
+             if (
+            // fogemorpheme
+              ((in_compound != IN_CPD_NOT) || !(pptr->getCont() &&
+                  (TESTAFF(pptr->getCont(), onlyincompound, pptr->getContLen())))) &&
+            // permit prefixes in compounds
+              ((in_compound != IN_CPD_END) || (pptr->getCont() &&
+                  (TESTAFF(pptr->getCont(), compoundpermitflag, pptr->getContLen()))))
+              ) {
+            // check prefix
+                  rv = pptr->checkword(word, len, in_compound, needflag);
+                  if (rv) {
+                    //~pfx=(AffEntry *)pptr; // BUG: pfx not stateless
+                    pfx= pptr; // BUG: pfx not stateless
+                    return rv;
+                  }
+             }
+             pptr = pptr->getNextEQ();
+        } else {
+             pptr = pptr->getNextNE();
+        }
+    } 
+ 
+
+  
+    // now handle the general case
+    unsigned char sp = *((const unsigned char *)word);
+    //~PfxEntry * pptr = pStart[sp];
+    pptr = pStart[sp];
+
+    while (pptr) {
+        if (isSubset(pptr->getKey(),word)) {
+            
+            // add support for infixes which not starts with a dot 
+                if (strstr(pptr->getKey(),"."))
+                {
+                if(!utf8)
+                  {
+                    char * s=swap_infix_subset(pptr->getKey(),word,len);
+            //   	printf("+13swaped word%s\n",s);
+                    word=s;
+                    len=strlen(word);
+                  }
+                else
+                  {
+                        char * s=swap_infix_subset_utf8(pptr->getKey(),word,len);
+            //	    	printf("+13swaped word%s\n",s);
+                    word=s;
+                    len=strlen(word);
+                  }
+                }            
              if (
             // fogemorpheme
               ((in_compound != IN_CPD_NOT) || !(pptr->getCont() &&
@@ -2522,12 +2611,51 @@ int AffixMgr::compound_check_morph(const char * word, int len,
 
 inline int AffixMgr::isRevSubset(const char * s1, const char * end_of_s2, int len)
  {
-    while ((len > 0) && (*s1 != '\0') && ((*s1 == *end_of_s2) || (*s1 == '.'))) {
+     
+         while ((len > 0) && (*s1 != '\0') && ((*s1 == *end_of_s2) || (*s1 == '.'))) {
         s1++;
         end_of_s2--;
         len--;
     }
     return (*s1 == '\0');
+    
+	 //~if (!utf8)
+	 //~{
+		 //~
+    //~while ((len > 0) && (*s1 != '\0') && ((*s1 == *end_of_s2) || (*s1 == '.'))) {
+        //~s1++;
+        //~end_of_s2--;
+        //~len--;
+    //~}
+    //~return (*s1 == '\0');
+	 //~}
+    //~else 
+         //~{
+    //~w_char s1_u16[MAXWORDUTF8LEN];
+    //~w_char s2_u16[MAXWORDUTF8LEN];
+    //~char *s1_rev=mystrdup(s1);
+    //~reverseword_utf(s1_rev);
+    //~//printf("---------s1:%s s1rev:%s s2:%s\n",s1,s1_rev,end_of_s2-len+1);
+    //~//printf("---------+25\n");
+    //~int s1_u16len=u8_u16(s1_u16, MAXWORDUTF8LEN, s1_rev);
+    //~//printf("---------+26\n");
+    //~int s2_u16len=u8_u16(s2_u16, MAXWORDUTF8LEN, end_of_s2-len+1);
+    //~//printf("---------+27\n");
+    //~int i_s1_u16=s1_u16len-1;
+    //~int j_s2_u16=s2_u16len-1;
+    //~while ((j_s2_u16 >=0) && (i_s1_u16>=0) && ((w_char_eq(s1_u16[i_s1_u16],s2_u16[j_s2_u16])) || (w_char_is_point(s1_u16[i_s1_u16]))))
+    //~{
+        //~i_s1_u16--;
+            //~j_s2_u16--;
+        //~}
+         //debug
+        //~if (!(i_s1_u16<0)) 
+          //~{
+            //~printf("----1----s1:%s s1rev:%s s2:%s\n",s1,s1_rev,end_of_s2-len+1);
+            //~}
+        //~return (i_s1_u16<0);
+//~
+     //~}
  }
 
 // check word for suffixes
@@ -2578,14 +2706,118 @@ struct hentry * AffixMgr::suffix_check (const char * word, int len,
        se = se->getNext();
     }
 
+
+ //handle the infixes case ( starts with a point by Taha Zerrouki
+   // now handle the general case
+//  unsigned char sp = *((const unsigned char *)(word + len - 1));
+    SfxEntry * sptr = (SfxEntry *) sStart['.'];
+    while (sptr) {
+        if (isRevSubset(sptr->getKey(), word + len - 1, len)
+        ) {
+		// add support for infixes in suffixes by Taha Zerrouki
+		if (strstr(sptr->getKey(),"."))
+		{
+			if (!utf8)
+			{
+				
+		char* s=swap_rev_infix_subset(sptr->getKey(),word,len);
+		word=s;
+		len=strlen(word);
+		}
+			else 
+			{
+		char* s=swap_rev_infix_subset_utf8(sptr->getKey(),word,len);
+		word=s;
+		len=strlen(word);
+		
+			}
+			
+		}
+			
+            // suffixes are not allowed in beginning of compounds
+            if ((((in_compound != IN_CPD_BEGIN)) || // && !cclass
+             // except when signed with compoundpermitflag flag
+             (sptr->getCont() && compoundpermitflag &&
+                TESTAFF(sptr->getCont(),compoundpermitflag,sptr->getContLen()))) && (!circumfix ||
+              // no circumfix flag in prefix and suffix
+              ((!ppfx || !(ep->getCont()) || !TESTAFF(ep->getCont(),
+                   circumfix, ep->getContLen())) &&
+               (!sptr->getCont() || !(TESTAFF(sptr->getCont(),circumfix,sptr->getContLen())))) ||
+              // circumfix flag in prefix AND suffix
+              ((ppfx && (ep->getCont()) && TESTAFF(ep->getCont(),
+                   circumfix, ep->getContLen())) &&
+               (sptr->getCont() && (TESTAFF(sptr->getCont(),circumfix,sptr->getContLen())))))  &&
+            // fogemorpheme
+              (in_compound || 
+                 !((sptr->getCont() && (TESTAFF(sptr->getCont(), onlyincompound, sptr->getContLen()))))) 
+                 //~&&
+            // pseudoroot on prefix or first suffix
+              //~(cclass || 
+                  //~!(sptr->getCont() && TESTAFF(sptr->getCont(), pseudoroot, sptr->getContLen())) ||
+                  //~(ppfx && !((ep->getCont()) &&
+                     //~TESTAFF(ep->getCont(), pseudoroot,
+                       //~ep->getContLen())))
+              //~)
+            ) {
+                rv = sptr->checkword(word,len, sfxopts, ppfx, wlst,
+                    maxSug, ns, cclass, needflag, (in_compound ? 0 : onlyincompound));
+                if (rv) {
+                    //~sfx=(AffEntry *)sptr; // BUG: sfx not stateless
+                    sfx= sptr; // BUG: sfx not stateless
+                    sfxflag = sptr->getFlag(); // BUG: sfxflag not stateless
+                    if (!sptr->getCont()) sfxappnd=sptr->getKey(); // BUG: sfxappnd not stateless
+                    if (cclass || sptr->getCont()) {
+                                if (!derived) {
+                                        derived = mystrdup(word);
+                                } else {
+                                        char * result = (char *) malloc((strlen(derived)+strlen(word)+2) * sizeof(char*));
+                                        strcpy(result, derived); // XXX check size
+                                        strcat(result, "\n");
+                                        strcat(result, word);
+                                        free(derived);
+                                        derived = mystrdup(result);
+                                }
+                    }
+                    return rv;
+                }
+             }
+             sptr = sptr->getNextEQ();
+        } else {
+             sptr = sptr->getNextNE();
+        }
+    }
+
+
     // now handle the general case
     if (len == 0) return NULL; // FULLSTRIP
     unsigned char sp= *((const unsigned char *)(word + len - 1));
-    SfxEntry * sptr = sStart[sp];
+    //~SfxEntry * sptr = sStart[sp];
+    sptr = sStart[sp];
 
     while (sptr) {
         if (isRevSubset(sptr->getKey(), word + len - 1, len)
         ) {
+            
+        // add support for infixes in suffixes by Taha Zerrouki
+		if (strstr(sptr->getKey(),"."))
+		{
+			if (!utf8)
+			{
+				
+		char* s=swap_rev_infix_subset(sptr->getKey(),word,len);
+		word=s;
+		len=strlen(word);
+		}
+			else 
+			{
+		char* s=swap_rev_infix_subset_utf8(sptr->getKey(),word,len);
+		word=s;
+		len=strlen(word);
+		
+			}
+			
+		}
+
             // suffixes are not allowed in beginning of compounds
             if ((((in_compound != IN_CPD_BEGIN)) || // && !cclass
              // except when signed with compoundpermitflag flag

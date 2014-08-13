@@ -5861,3 +5861,146 @@ int parse_array(char * line, char ** out, unsigned short ** out_utf16,
    }
    return 0;
 }
+
+
+
+//swap the Inffixes jokers By Taha Zerrouki
+char*  swap_infix_subset(const char* context,const char *word,int len)
+{
+int len_cont=strlen(context);
+char *swap =(char *) malloc (sizeof (*word) * (strlen (word) +strlen(context)+4));
+int j=0;
+for (int i=0;i<len_cont;i++)
+{
+	 swap[j++]=context[i];
+}
+for (int i=0;i<len_cont;i++)
+{
+	if (context[i]==INFIX_JOKER) swap[j++]=word[i];
+}
+for (int i=len_cont;i<len;i++)
+{
+	 swap[j++]=word[i];
+}
+swap[j]='\0';
+//printf( " old word %s new wor %s\n",word,swap);
+return swap;
+}
+
+//swap the Inffixes jokers( UTF8) By Taha Zerrouki 
+char*  swap_infix_subset_utf8(const char* context,const char *word,int len)
+{
+w_char context_u16[MAXWORDUTF8LEN];
+w_char word_u16[MAXWORDUTF8LEN];
+w_char swap_u16[MAXWORDUTF8LEN];
+int len_cont=strlen(context);
+//printf("----------1\n");
+int len_cont_u16=u8_u16(context_u16,MAXWORDUTF8LEN,context);
+//printf("----------2\n");
+int len_word_u16=u8_u16(word_u16,MAXWORDUTF8LEN,word);
+//printf("----------3\n");
+int j_swap=0;
+for (int i=0;i<len_cont_u16;i++)
+{
+	 swap_u16[j_swap].l=context_u16[i].l;
+	 swap_u16[j_swap].h=context_u16[i].h;
+	 j_swap++;
+}
+for (int i=0;i<len_cont_u16;i++)
+{
+	if (w_char_is_point(context_u16[i]))
+	{
+		swap_u16[j_swap].l=word_u16[i].l;
+		swap_u16[j_swap].h=word_u16[i].h;
+		j_swap++;
+	}
+}
+for (int i=len_cont_u16;i<len_word_u16;i++)
+{
+	 swap_u16[j_swap].l=word_u16[i].l;
+	 swap_u16[j_swap].h=word_u16[i].h;
+	j_swap++;
+}
+swap_u16[j_swap].l='\0';
+swap_u16[j_swap].h='\0';
+//printf( " old word %s new wor %s\n",word,strip);
+char *swap =(char *) malloc (sizeof (*word) * (strlen (word) +strlen(context)+4));
+//printf("----------4\n");
+u16_u8(swap,MAXWORDUTF8LEN,swap_u16,j_swap);
+return swap;
+}
+
+
+//swap the Inffixes jokers By Taha Zerrouki
+char*  swap_rev_infix_subset(const char* context,const char *word,int len)
+{
+int len_cont=strlen(context);
+int len_diff=len-len_cont;
+char *swap =(char *) malloc (sizeof (*word) * (strlen (word) +strlen(context)+4));
+char *contextRev =myrevstrdup(context);
+int j=0;
+int k1=0;
+for (int i=0;i<len_diff;i++)
+{
+	 swap[j++]=word[i];
+}
+for (int i=0;i<len_cont;i++)
+{
+	if (contextRev[i]==INFIX_JOKER) swap[j++]=word[i+len_diff];
+}
+for (int i=0;i<len_cont;i++)
+{
+	 swap[j++]=context[i];
+}
+swap[j]='\0';
+//printf( "Rev  old word %s context %s new wor %s\n",word,context,swap);
+return swap;
+}
+
+//swap the Inffixes jokers UTF8 By Taha Zerrouki
+char*  swap_rev_infix_subset_utf8(const char* context,const char *word,int len)
+{
+//	printf("context %s\n",context);
+w_char context_u16[MAXWORDUTF8LEN];
+w_char contextRev_u16[MAXWORDUTF8LEN];
+w_char word_u16[MAXWORDUTF8LEN];
+w_char swap_u16[MAXWORDUTF8LEN];
+//printf("-------+31\n");
+char * context_rev=mystrdup(context);
+reverseword_utf(context_rev);
+//printf("-------+31- context %s, context_rev %s\n",context,context_rev);
+int len_cont_u16=u8_u16(contextRev_u16,MAXWORDUTF8LEN,context_rev);
+//printf("-------+32\n");
+int len_word_u16=u8_u16(word_u16,MAXWORDUTF8LEN,word);
+//printf("-------+33\n");
+int j_swap=0;
+int len_diff=len_word_u16-len_cont_u16;
+int j=0;
+for (int i=0;i<len_diff;i++)
+{
+	 swap_u16[j].l=word_u16[i].l;
+	 swap_u16[j].h=word_u16[i].h;
+	 j++;
+	 
+}
+for (int i=0;i<len_cont_u16;i++)
+{
+	if (w_char_is_point(contextRev_u16[i]))
+	{
+		swap_u16[j].l=word_u16[i+len_diff].l;
+		swap_u16[j].h=word_u16[i+len_diff].h;
+		j++;
+	}
+}
+for (int i=0;i<len_cont_u16;i++)
+{
+	 swap_u16[j].l=contextRev_u16[i].l;
+	 swap_u16[j].h=contextRev_u16[i].h;
+	 j++;
+}
+ swap_u16[j].l='\0';
+ swap_u16[j].h='\0';
+char *swap =(char *) malloc (sizeof (*word) * (strlen (word) +strlen(context)+4));
+u16_u8(swap,MAXWORDUTF8LEN,swap_u16,j);
+return swap;
+}

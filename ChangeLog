@@ -1,3 +1,18 @@
+2014-08-13 Taha Zerrouki <taha dot zerrouki at gmail dot com>:
+    *  intl/locale.alias: add arabic alias
+    * po/LINGUAS: add ar and ar_dz language
+    * po/ar.*, ar_DZ.*: add arabic translation
+    * src/hunspell/w_char.hxx: define w_char_is_point()
+ 	* src/hunspell/affentry.cxx: modify functions : SfxEntry::SfxEntry() to reverse rappnd if it's utf8
+    * src/hunspell/csutils.hxx : add a macro :  w_char_is_point(a)
+	* src/hunspell/affixmgr.cxx: modify functions : isSubset() and isSubsetRev() to add utf8 support
+	* src/hunspell/csutils.?xx: add a new functions for infixes :swap_infix_subsetuft8() and swap_infix_subset_utf8();
+	* src/hunspell/affentry.cxx: new functions : inline int PfxEntry::swap_infixes()	*
+	* src/hunspell/affentry.cxx: modify functions : PfxEntry::checkword()	
+	* src/hunspell/affixmgr.cxx: modify functions : suffix_check() and prefix_check()
+	* src/hunspell/csutils.?xx: add a new functions for infixes :swap_infix_subset() and swap_infix_subset();
+
+
 2014-06-02 Németh László <nemeth at numbertext dot org>:
 	* escape spaces in paths of ODF files
 

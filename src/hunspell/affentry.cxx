@@ -177,6 +177,12 @@ struct hentry * PfxEntry::checkword(const char * word, int len, char in_compound
             }
             strcpy ((tmpword + stripl), (word + appndl));
 
+
+            // HAS infixes SWAP
+            //	printf("1-len %d, word:%s\n",tmpl,tmpword);
+                swap_infixes(tmpword,tmpl);
+            //printf("2-len %d, word:%s\n",tmpl,tmpword);
+            
             // now make sure all of the conditions on characters
             // are met.  Please see the appendix at the end of
             // this file for more info on exactly what is being
@@ -410,6 +416,91 @@ char * PfxEntry::check_morph(const char * word, int len, char in_compound, const
     return NULL;
 }
 
+// swap infixes in the tmpword for prefix checkword function by Taha Zerrouki
+inline void   PfxEntry::swap_infixes( char * tmpword,int &tmpl)
+{
+// the tmp word contain the strip string and the stem without append
+// example : strip =.a, word=root;
+// 	     tmpword=.aroot;
+// 	     the result string will be =raoot;
+// 	
+		if(strstr(strip,"."))
+	{
+		if (!aeUTF8)
+		{
+
+	    char  tmpword2[MAXWORDUTF8LEN];
+	    char * stem=tmpword+stripl;
+	    memset(tmpword2,'\0',MAXWORDUTF8LEN);
+
+	    int j_tmpword=0;// indice of tmpword
+	    int i_tmpword2=0;// indice of tmpword2
+
+	    for(int i=0;i<stripl;i++)
+	    {
+		if (strip[i]=='.') {
+			tmpword2[i_tmpword2++]=stem[j_tmpword++];
+		}
+		else
+		{
+			tmpword2[i_tmpword2++]=strip[i];
+		}
+	     	
+	    }
+	    strcpy ((tmpword2+i_tmpword2), (stem +j_tmpword));
+	    strcpy (tmpword,tmpword2 );
+	    tmpl=strlen(tmpword);
+}
+else 
+{
+	   w_char tmpword2_u16[MAXWORDUTF8LEN];
+	   w_char strip_u16[MAXWORDUTF8LEN];
+	   w_char tmpword_u16[MAXWORDUTF8LEN];
+	   w_char stem_u16[MAXWORDUTF8LEN];
+	    int j_tmpword_u16=0;// indice of tmpword_u16
+	    int i_tmpword2_u16=0;// indice of tmpword2_u16
+	    char * stem=tmpword+stripl;
+	    int stripl_u16=u8_u16(strip_u16,MAXWORDUTF8LEN,strip);
+	    int len_stem_u16=u8_u16(stem_u16,MAXWORDUTF8LEN,stem);
+	    int len_tmpword_u16=u8_u16(tmpword_u16,MAXWORDUTF8LEN,tmpword);
+
+	    int j_tmpword=0;// indice of tmpword
+	    int i_tmpword2=0;// indice of tmpword2
+
+	    for(int i=0;i<stripl_u16;i++)
+	    {
+		if (w_char_is_point(strip_u16[i])) {
+			tmpword2_u16[i_tmpword2].l=stem_u16[j_tmpword].l;
+			tmpword2_u16[i_tmpword2].h=stem_u16[j_tmpword].h;
+			i_tmpword2++;
+			j_tmpword++;
+		}
+		else
+		{
+		tmpword2_u16[i_tmpword2].l=strip_u16[i].l;
+		tmpword2_u16[i_tmpword2].h=strip_u16[i].h;
+		i_tmpword2++;
+		}
+	     	
+	    }
+	    for (int i=j_tmpword;i<len_stem_u16;i++)
+	    {
+
+		tmpword2_u16[i_tmpword2].l=stem_u16[i].l;
+		tmpword2_u16[i_tmpword2].h=stem_u16[i].h;
+		i_tmpword2++;
+	    }
+	   u16_u8(tmpword,MAXWORDUTF8LEN,tmpword2_u16,i_tmpword2);
+	    tmpl=strlen(tmpword);
+}
+}
+	
+}
+
+
+
+
+
 SfxEntry::SfxEntry(AffixMgr * pmgr, affentry* dp)
     : pmyMgr(pmgr) // register affix manager
     , next(NULL)
@@ -434,7 +525,18 @@ SfxEntry::SfxEntry(AffixMgr * pmgr, affentry* dp)
     memcpy(c.l.conds1, dp->c.l.conds1, MAXCONDLEN_1);
     c.l.conds2 = dp->c.l.conds2;
   } else memcpy(c.conds, dp->c.conds, MAXCONDLEN);
-  rappnd = myrevstrdup(appnd);
+  
+   if((!aeUTF8)||(appndl==0))
+      rappnd = myrevstrdup(appnd);
+    else
+    {
+        // modified by Taha Zerrouki
+    //char * s=mystrdup(appnd);
+    //reverseword_utf8(s);
+    rappnd = mystrdup(appnd);
+    reverseword_utf(rappnd);
+    }
+
   morphcode = dp->morphcode;
   contclass = dp->contclass;
   contclasslen = dp->contclasslen;
@@ -635,6 +737,11 @@ struct hentry * SfxEntry::checkword(const char * word, int len, int optflags,
                 tmpl += stripl;
                 cp = (unsigned char *)(tmpword + tmpl);
             } else *cp = '\0';
+
+            // handle infixes cas in the suffix by Taha Zerrouki
+            //printf("1- word:%s, tmpword:%s,strip:%s,appnd:%s\n",word,tmpword, strip,appnd);
+                    swap_infixes(tmpword,tmpl);
+            //printf("2- word:%s, tmpword:%s,strip:%s,appnd:%s\n",word,tmpword, strip,appnd);
 
             // now make sure all of the conditions on characters
             // are met.  Please see the appendix at the end of
@@ -877,6 +984,92 @@ struct hentry * SfxEntry::get_next_homonym(struct hentry * he, int optflags, Pfx
     }
     return NULL;
 }
+
+
+// swap infixes in the tmpword for suffix checkword function by Taha Zerrouki
+inline void   SfxEntry::swap_infixes( char * tmpword,int &tmpl)
+{
+	if(strstr(strip,"."))
+	{
+// the tmpword contain the strip string and the stem without append
+// example : strip =i.., word=drnk;
+// 	     tmpword=drnk..i;
+// 	     the result string will be =drink;
+// 	
+	if(!aeUTF8)
+	{
+		printf("---tmpword %s,strip %s\n",tmpword,strip);
+	    char  tmpword2[MAXWORDUTF8LEN];
+	    char * stem=tmpword;
+	    memset(tmpword2,'\0',MAXWORDUTF8LEN);
+
+	    int j_tmpword=tmpl-stripl-1;// indice of tmpword
+	    int i_tmpword2=0;// indice of tmpword2
+	    for(int i=stripl-1;i>=0;i--)
+	    {
+		if (strip[i]=='.') {
+			tmpword2[i_tmpword2++]=stem[j_tmpword--];
+		}
+		else
+		{
+			tmpword2[i_tmpword2++]=strip[i];
+		}
+	     	
+	    }
+	    while (j_tmpword>=0) tmpword2[i_tmpword2++]=stem[j_tmpword--];
+	    strcpy (tmpword,myrevstrdup(tmpword2) );
+	    tmpl=strlen(tmpword);
+}
+else // UTF8
+	{
+	char * stripRev=mystrdup(strip);
+	reverseword_utf(stripRev);
+	reverseword_utf(tmpword);
+	   w_char tmpword2_u16[MAXWORDUTF8LEN];
+	   w_char strip_u16[MAXWORDUTF8LEN];
+	   w_char tmpword_u16[MAXWORDUTF8LEN];
+	   w_char stem_u16[MAXWORDUTF8LEN];
+	    int j_tmpword_u16=0;// indice of tmpword_u16
+	    int i_tmpword2_u16=0;// indice of tmpword2_u16
+	    char * stem=tmpword+stripl;
+	    int stripl_u16=u8_u16(strip_u16,MAXWORDUTF8LEN,stripRev);
+	    int len_stem_u16=u8_u16(stem_u16,MAXWORDUTF8LEN,stem);
+	    int len_tmpword_u16=u8_u16(tmpword_u16,MAXWORDUTF8LEN,tmpword);
+
+	    int j_tmpword=0;// indice of tmpword
+	    int i_tmpword2=0;// indice of tmpword2
+
+	    for(int i=0;i<stripl_u16;i++)
+	    {
+		if (w_char_is_point(strip_u16[i])) {
+			tmpword2_u16[i_tmpword2].l=stem_u16[j_tmpword].l;
+			tmpword2_u16[i_tmpword2].h=stem_u16[j_tmpword].h;
+			i_tmpword2++;
+			j_tmpword++;
+		}
+		else
+		{
+		tmpword2_u16[i_tmpword2].l=strip_u16[i].l;
+		tmpword2_u16[i_tmpword2].h=strip_u16[i].h;
+		i_tmpword2++;
+		}
+	     	
+	    }
+	    for (int i=j_tmpword;i<len_stem_u16;i++)
+	    {
+
+		tmpword2_u16[i_tmpword2].l=stem_u16[i].l;
+		tmpword2_u16[i_tmpword2].h=stem_u16[i].h;
+		i_tmpword2++;
+	    }
+	   u16_u8(tmpword,MAXWORDUTF8LEN,tmpword2_u16,i_tmpword2);
+	   reverseword_utf(tmpword);
+	    tmpl=strlen(tmpword);
+}
+}
+}
+	
+
 
 
 #if 0
