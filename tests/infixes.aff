@@ -1,0 +1,32 @@
+# infixes (see manual)
+NOSUGGES
+# Arabic
+PFX A Y 6
+PFX A 0 .a .
+PFX A 0 ..o .
+PFX A 0 y .
+PFX A 0 y.a .
+PFX A 0 t..a .
+PFX A 0 t .
+
+PFX B Y 1
+PFX B 0 n.o.a .
+
+PFX C Y 1
+PFX C .a .o .
+
+PFX D Y 1
+PFX D ..k ..q .
+
+SFX S Y 5
+SFX S 0 p.a.un .
+SFX S 0 a.in .
+SFX S 0 e. .
+SFX S 0 o. .
+SFX S 0 u.. .
+
+SFX K Y 1
+SFX K 0 o.en .
+
+SFX H Y 1
+SFX H i. u.en .

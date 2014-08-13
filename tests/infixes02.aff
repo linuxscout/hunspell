@@ -1,0 +1,12 @@
+# infixes (see manual)
+
+# english irregular verbs
+# get => got
+SFX K Y 1
+SFX K e. o. .
+
+# dig => dug
+SFX L Y 1
+SFX L i. u. .
+
+

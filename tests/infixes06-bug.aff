@@ -1,0 +1,9 @@
+# infixes (see manual)
+
+#swim swum
+PFX K Y 1
+PFX K ..i ..u .
+
+#drank drunk
+#PFX B Y 1
+#PFX B ..a ..u .

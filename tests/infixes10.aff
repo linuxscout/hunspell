@@ -1,0 +1,12 @@
+# infixes (see manual)
+# example of arabic UTF-8 prefix
+SET UTF-8
+#قل => قول، يقول باستعمال اللاحقة
+SFX A Y 2
+SFX A 0 و. .
+SFX A 0 و.ي .
+
+#ql => qol, yqol by suffix
+SFX a Y 2
+SFX a 0 o. .
+SFX a 0 o.y .

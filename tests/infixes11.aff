@@ -1,0 +1,9 @@
+# infixes (see manual)
+# example of arabic UTF-8 prefix
+SET UTF-8
+
+
+SFX a Y 2
+SFX a 0 o. .
+SFX a 0 a.y .
+

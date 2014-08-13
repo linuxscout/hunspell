@@ -1,0 +1,22 @@
+# infixes (see manual)
+# English irregluar verb
+
+# dig dug
+SFX A Y 2
+SFX A i. u. i[^i]
+SFX A i. a. i[^i]
+
+# swim swam swum
+SFX B Y 2
+SFX B i. u. i[^i]
+SFX B i. a. i[^i]
+
+
+SFX C Y 2
+SFX C i.. a.. i[^i][^i]
+SFX C i.. u.. i[^i][^i]
+
+SFX D N 1
+SFX D a.. o.. a[^a][^a]
+#SFX D a.. u.. a[^a][^a]
+

@@ -1,0 +1,20 @@
+# infixes (see manual)
+
+# Indonesian: perintah (rule) -> pemerintah (government)
+PFX A Y 1
+PFX A 0 .em .
+
+
+# Hungarian: kerék (wheel) -> kerekek (wheels)
+# szerelem (love) -> szerelmek (loves)
+# bagoly (owl) -> baglyok (owls)
+SFX B Y 5
+SFX B é. eke. .
+SFX B é. e.ek .
+SFX B e. et .
+SFX B e. ek .
+SFX B o.. ok .
+
+SFX D Y 1
+SFX D é. eke. .
+

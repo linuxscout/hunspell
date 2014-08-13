@@ -1,0 +1,8 @@
+# infixes (see manual)
+NEEDAFFIX X
+# use of infixes with NEEDAFFIX
+SFX H Y 1
+SFX H i.. u..able/XD .
+
+PFX D Y 1
+PFX D 0 un .

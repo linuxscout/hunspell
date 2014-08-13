@@ -1,0 +1,16 @@
+SET UTF-8
+# infixes (see manual)
+
+#swim => swum
+SFX A Y 1
+SFX A i. u. .
+
+#beet => bet
+SFX B Y 1
+SFX B ee. e. .
+
+#choose => chose
+SFX C Y 1
+SFX C oo.. o.. .
+
+

@@ -1,0 +1,11 @@
+# infixes (see manual)
+# example of arabic UTF-8 prefix
+#use of infix striping
+SET UTF-8
+
+#drink drank drunk
+SFX a Y 2
+SFX a i.. a.. .
+SFX a i.. u.. .
+
+

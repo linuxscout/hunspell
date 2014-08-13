@@ -1,0 +1,12 @@
+# infixes (see manual)
+#remark:
+# if we have the same suffixes with differents strips we will get only one suffix rule in the output
+#if we comment one rule the other works.
+#drink drunk
+SFX K Y 1
+SFX K i.. u.. .
+
+#hang hung
+SFX B Y 1
+SFX B a.. u.. .
+

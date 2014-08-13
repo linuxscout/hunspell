@@ -1,0 +1,14 @@
+SET UTF-8
+# infixes (see manual)
+
+
+#tak => took
+SFX D Y 5
+SFX D a. oo. .
+SFX D a. abcd. .
+SFX D o.. a.. .
+SFX D o.. ab.. .
+SFX D x.. y.. .
+
+SFX C Y 1
+SFX C o.. ab. .
